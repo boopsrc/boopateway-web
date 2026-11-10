@@ -13,7 +13,7 @@ import { startSimulatedFace } from '../../data/face/simulatedFace'
 import { useAppStore } from '../../data/session/store'
 import type { FaceCapture } from '../../domain/types'
 
-type Mode = 'starting' | 'camera' | 'simulated' | 'denied' | 'unavailable'
+type Mode = 'starting' | 'camera' | 'simulated' | 'denied' | 'unavailable' | 'insecure'
 
 function hintFor(state: FaceState, progress: number, saving: boolean, error: string | null): string {
   if (saving) return 'Rosto capturado!'
@@ -80,6 +80,12 @@ export function FaceCaptureView(props: {
   const requestCamera = useCallback(async () => {
     setMode('starting')
     setError(null)
+    // Fora de contexto seguro (http:// por IP, comum no celular) o navegador nem expõe
+    // mediaDevices, então a permissão nunca é pedida.
+    if (!window.isSecureContext) {
+      setMode('insecure')
+      return
+    }
     if (!navigator.mediaDevices?.getUserMedia) {
       setMode('unavailable')
       return
@@ -235,14 +241,25 @@ export function FaceCaptureView(props: {
             <p className="t-title-m center">
               {mode === 'denied'
                 ? 'Precisamos da câmera para reconhecer o rosto.'
-                : 'Nenhuma câmera disponível neste dispositivo.'}
+                : mode === 'insecure'
+                  ? 'A câmera só funciona em conexão segura (HTTPS).'
+                  : 'Nenhuma câmera disponível neste dispositivo.'}
             </p>
             {mode === 'denied' && (
               <p className="t-body-m muted center">Libere o acesso à câmera nas permissões do navegador e tente de novo.</p>
             )}
+            {mode === 'insecure' && (
+              <p className="t-body-m muted center">
+                Abra este endereço com https:// em vez de http:// para o navegador pedir a permissão da câmera.
+              </p>
+            )}
             <div className="spacer" />
             <ButtonBar>
-              <PrimaryButton onClick={requestCamera}>Permitir câmera</PrimaryButton>
+              {mode === 'insecure' ? (
+                <PrimaryButton onClick={() => window.location.assign(httpsUrl())}>Abrir em HTTPS</PrimaryButton>
+              ) : (
+                <PrimaryButton onClick={requestCamera}>Permitir câmera</PrimaryButton>
+              )}
               {demo && <SecondaryButton onClick={simulate}>Simular rosto (demo)</SecondaryButton>}
             </ButtonBar>
           </motion.div>
@@ -260,6 +277,13 @@ export function FaceCaptureView(props: {
       )}
     </PosScreen>
   )
+}
+
+/** Mesmo endereço em https:// (no Docker o nginx já redireciona http → https sozinho). */
+function httpsUrl(): string {
+  const url = new URL(window.location.href)
+  url.protocol = 'https:'
+  return url.toString()
 }
 
 /** Fundo do modo simulado: um "rosto" desenhado acompanhando a caixa simulada. */

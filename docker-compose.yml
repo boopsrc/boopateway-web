@@ -7,9 +7,13 @@ services:
     container_name: boopateway-web
     ports:
       - "${WEB_PORT:-31802}:80"
+      # HTTPS (obrigatório para a câmera no celular). Para usar um certificado próprio,
+      # monte cert.pem e key.pem em /etc/nginx/certs.
+      - "${WEB_HTTPS_PORT:-31803}:443"
     environment:
       # Gateway rodando no host (porta 31800). Troque se estiver em outro lugar.
       API_TARGET: ${API_TARGET:-http://host.docker.internal:31800}
+      HTTPS_PORT: ${WEB_HTTPS_PORT:-31803}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

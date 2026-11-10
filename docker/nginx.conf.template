@@ -1,10 +1,25 @@
+# Acesso por http:// fora de localhost (ex.: celular pelo IP) vai para https://, senão a câmera não abre.
+map "$scheme:$host" $boop_redirect_https {
+    default                0;
+    "~^http:(?!localhost$|127\.0\.0\.1$)" 1;
+}
+
 server {
     listen 80;
+    # HTTPS: a câmera (getUserMedia) só funciona em contexto seguro fora de localhost.
+    # Sem certificado montado, docker/gen-cert.sh gera um autoassinado na subida.
+    listen 443 ssl;
+    ssl_certificate     /etc/nginx/certs/cert.pem;
+    ssl_certificate_key /etc/nginx/certs/key.pem;
     server_name _;
     root /usr/share/nginx/html;
 
     # Fotos do rosto vão no multipart.
     client_max_body_size 10m;
+
+    if ($boop_redirect_https) {
+        return 302 https://$host:${HTTPS_PORT}$request_uri;
+    }
 
     # Proxy para o gateway FacePay (equivale ao proxy /api do Vite em dev).
     location /api/ {

@@ -6,7 +6,7 @@ Versão web (React) do POS **FacePay** ([boopateway-droid](https://github.com/bo
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # https://localhost:5173 (HTTPS para a câmera no celular)
 ```
 
 - `npm test` — testes unitários (porta dos testes do Android)
@@ -18,7 +18,9 @@ npm run dev        # http://localhost:5173
 docker compose up -d --build   # http://localhost:31802
 ```
 
-nginx serve o build e repassa `/api/*` para `API_TARGET` (padrão `http://host.docker.internal:31800`, o gateway no host). Variáveis opcionais: `WEB_PORT`, `API_TARGET` e `VITE_DEMO=true` (este no build). A câmera no navegador exige `localhost` ou HTTPS.
+nginx serve o build e repassa `/api/*` para `API_TARGET` (padrão `http://host.docker.internal:31800`, o gateway no host). Variáveis opcionais: `WEB_PORT`, `WEB_HTTPS_PORT`, `API_TARGET` e `VITE_DEMO=true` (este no build).
+
+**Câmera no celular:** o navegador só pede a permissão em `localhost` ou HTTPS. O container também serve HTTPS em `https://<ip>:31803` (certificado autoassinado gerado na subida; aceite o aviso no celular) e redireciona para lá quem abre `http://<ip>:31802`. Para usar um certificado próprio, monte `cert.pem` e `key.pem` em `/etc/nginx/certs`. Em dev, o Vite já sobe em HTTPS (`VITE_HTTPS=false` desliga).
 
 ## Backend
 
