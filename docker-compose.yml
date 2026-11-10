@@ -1,0 +1,15 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        VITE_DEMO: ${VITE_DEMO:-false}
+    container_name: boopateway-web
+    ports:
+      - "${WEB_PORT:-31802}:80"
+    environment:
+      # Gateway rodando no host (porta 31800). Troque se estiver em outro lugar.
+      API_TARGET: ${API_TARGET:-http://host.docker.internal:31800}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

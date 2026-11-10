@@ -12,6 +12,14 @@ npm run dev        # http://localhost:5173
 - `npm test` — testes unitários (porta dos testes do Android)
 - `npm run build` — build de produção em `dist/`
 
+## Docker
+
+```bash
+docker compose up -d --build   # http://localhost:31802
+```
+
+nginx serve o build e repassa `/api/*` para `API_TARGET` (padrão `http://host.docker.internal:31800`, o gateway no host). Variáveis opcionais: `WEB_PORT`, `API_TARGET` e `VITE_DEMO=true` (este no build). A câmera no navegador exige `localhost` ou HTTPS.
+
 ## Backend
 
 Copie `.env.example` para `.env`. O Vite repassa `/api/*` para `VITE_API_TARGET` (padrão `http://192.168.0.7:31800`), evitando CORS.
