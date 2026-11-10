@@ -1,0 +1,255 @@
+/* Paleta da marca (verde-azulado + neutros frios), porta do Color.kt. Contraste >= 7:1. */
+:root {
+  --primary: #00696b;
+  --on-primary: #ffffff;
+  --primary-container: #9cf1f1;
+  --on-primary-container: #002020;
+  --secondary: #4a6363;
+  --secondary-container: #cce8e7;
+  --background: #f4faf9;
+  --surface: #ffffff;
+  --surface-variant: #e3edec;
+  --on-surface: #111c1c;
+  --on-surface-variant: #3b4948;
+  --outline: #6f7979;
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error-container: #410002;
+  --success: #1b7a3a;
+  --success-container: #c9f0d2;
+  --frame-ok: #4ade80;
+  --frame-wrong: #f87171;
+  --glow: rgba(0, 105, 107, 0.35);
+  --aurora-1: rgba(0, 105, 107, 0.16);
+  --aurora-2: rgba(111, 216, 217, 0.22);
+  --aurora-3: rgba(27, 122, 58, 0.1);
+  --shadow: 0 10px 30px -12px rgba(0, 40, 40, 0.25);
+  --radius-l: 24px;
+  --radius-m: 16px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --primary: #6fd8d9;
+    --on-primary: #003738;
+    --primary-container: #004f51;
+    --on-primary-container: #9cf1f1;
+    --secondary: #b0cccb;
+    --secondary-container: #2a3e3e;
+    --background: #0b1414;
+    --surface: #142020;
+    --surface-variant: #1f2d2d;
+    --on-surface: #e6f0ef;
+    --on-surface-variant: #bcc9c8;
+    --outline: #889392;
+    --error: #ffb4ab;
+    --error-container: #93000a;
+    --on-error-container: #ffdad6;
+    --success: #7ddb95;
+    --success-container: #0e4f25;
+    --glow: rgba(111, 216, 217, 0.35);
+    --aurora-1: rgba(0, 79, 81, 0.5);
+    --aurora-2: rgba(111, 216, 217, 0.12);
+    --aurora-3: rgba(14, 79, 37, 0.35);
+    --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --primary: #6fd8d9;
+  --on-primary: #003738;
+  --primary-container: #004f51;
+  --on-primary-container: #9cf1f1;
+  --secondary: #b0cccb;
+  --secondary-container: #2a3e3e;
+  --background: #0b1414;
+  --surface: #142020;
+  --surface-variant: #1f2d2d;
+  --on-surface: #e6f0ef;
+  --on-surface-variant: #bcc9c8;
+  --outline: #889392;
+  --error: #ffb4ab;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+  --success: #7ddb95;
+  --success-container: #0e4f25;
+  --glow: rgba(111, 216, 217, 0.35);
+  --aurora-1: rgba(0, 79, 81, 0.5);
+  --aurora-2: rgba(111, 216, 217, 0.12);
+  --aurora-3: rgba(14, 79, 37, 0.35);
+  --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: var(--background);
+  color: var(--on-surface);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Tipografia maior, para leitura à distância no balcão (porta do Type.kt). */
+.t-display {
+  font-weight: 800;
+  font-size: clamp(40px, 11vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.t-headline-m {
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 36px;
+}
+.t-headline-s {
+  font-weight: 650;
+  font-size: 24px;
+  line-height: 32px;
+}
+.t-title-l {
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 28px;
+}
+.t-title-m {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 26px;
+}
+.t-body-l {
+  font-size: 17px;
+  line-height: 26px;
+}
+.t-body-m {
+  font-size: 15px;
+  line-height: 22px;
+}
+.t-label-l {
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.01em;
+}
+.t-label-m {
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.muted {
+  color: var(--on-surface-variant);
+}
+
+/* ---------- Shell: tela de POS centralizada; no desktop vira um "aparelho" flutuante. */
+.app {
+  position: relative;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  overflow: hidden;
+}
+.aurora {
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+}
+.aurora span {
+  position: absolute;
+  border-radius: 50%;
+}
+.device {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  overflow: hidden;
+}
+@media (min-width: 640px) and (min-height: 760px) {
+  .app {
+    align-items: center;
+    padding: 24px;
+  }
+  .device {
+    height: min(900px, 100%);
+    border-radius: 36px;
+    background: color-mix(in srgb, var(--background) 82%, transparent);
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--outline) 25%, transparent);
+  }
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: max(16px, env(safe-area-inset-top)) 20px max(16px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+@media (min-width: 400px) {
+  .screen {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+.screen-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+/* Em telas baixas a tela rola em vez de esmagar blocos (ex.: faixa de erro). */
+.screen-body > *,
+.register-form > * {
+  flex-shrink: 0;
+}
+.spacer {
+  flex: 1 1 0;
+  min-height: 12px;
+}
+.stack-8 > * + * {
+  margin-top: 8px;
+}
+.stack-12 > * + * {
+  margin-top: 12px;
+}
+.center {
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
