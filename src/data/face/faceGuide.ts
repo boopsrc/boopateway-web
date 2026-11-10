@@ -67,6 +67,25 @@ export function largestIndex(faces: Box[]): number | null {
   return best
 }
 
+/**
+ * Recorte do quadro (em pixels do quadro) que aparece na view com "cover": inverso exato de
+ * [toView]. O preview é desenhado com este recorte, então imagem e caixas usam a mesma conta.
+ */
+export function coverSource(imageWidth: number, imageHeight: number, viewWidth: number, viewHeight: number) {
+  const scale = Math.max(viewWidth / imageWidth, viewHeight / imageHeight)
+  const sw = viewWidth / scale
+  const sh = viewHeight / scale
+  return { sx: (imageWidth - sw) / 2, sy: (imageHeight - sh) / 2, sw, sh, scale }
+}
+
+/** Espelha uma caixa da view no eixo vertical (preview tipo "selfie"). */
+export const mirrorX = (b: Box, viewWidth: number): Box => ({
+  left: viewWidth - b.right,
+  right: viewWidth - b.left,
+  top: b.top,
+  bottom: b.bottom,
+})
+
 export function toView(face: Box, imageWidth: number, imageHeight: number, viewWidth: number, viewHeight: number): Box {
   const scale = Math.max(viewWidth / imageWidth, viewHeight / imageHeight)
   const dx = (imageWidth * scale - viewWidth) / 2

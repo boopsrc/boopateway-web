@@ -498,13 +498,24 @@
   background: #000;
   border-radius: 28px;
 }
-.camera-video {
+/* Fonte da câmera: fica no DOM (para decodificar) mas invisível. */
+.camera-source {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  /* 0.01 (não 0): alguns navegadores pausam vídeo considerado invisível. */
+  opacity: 0.01;
+  pointer-events: none;
+}
+/* Preview visível: canvas desenhado com a mesma conta das caixas (recorte cover + espelho). */
+.camera-preview {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transform: scaleX(-1);
+  display: block;
 }
 .face-frame {
   position: absolute;
@@ -573,6 +584,29 @@
   border: 3px solid #4ade80;
   box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.3);
   z-index: 3;
+}
+.debug-inset {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 4;
+  max-width: calc(100% - 16px);
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #e6f0ef;
+  pointer-events: none;
+}
+.debug-inset canvas {
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.debug-inset pre {
+  margin: 4px 0 0;
+  font-size: 10px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 .camera-caption {
   margin: 14px 0 0;

@@ -6,12 +6,13 @@ import { CameraHint, FaceFrame } from '../../components/FaceFrame'
 import type { Flow } from '../../components/FlowStepper'
 import { CameraIcon, FaceScanIcon } from '../../components/icons'
 import { PosScreen } from '../../components/PosScreen'
-import { HOLD_MILLIS, startFaceAnalyzer, type FaceUpdate } from '../../data/face/faceAnalyzer'
+import { HOLD_MILLIS, drawMirroredPreview, startFaceAnalyzer, type FaceUpdate } from '../../data/face/faceAnalyzer'
 import { loadFaceDetector } from '../../data/face/faceDetector'
 import type { Box, FaceState } from '../../data/face/faceGuide'
 import { startSimulatedFace } from '../../data/face/simulatedFace'
 import { useAppStore } from '../../data/session/store'
 import type { FaceCapture } from '../../domain/types'
+import { DebugInset } from './DebugInset'
 
 type Mode = 'starting' | 'camera' | 'simulated' | 'denied' | 'unavailable' | 'insecure'
 
@@ -116,6 +117,20 @@ export function FaceCaptureView(props: {
     }
   }, [mode])
 
+  // Preview: redesenha o quadro no canvas a cada frame (congela na captura).
+  const previewRef = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    if (mode !== 'camera' || saving) return
+    let raf = 0
+    const loop = () => {
+      raf = requestAnimationFrame(loop)
+      const { width, height } = sizeRef.current
+      if (previewRef.current && videoRef.current) drawMirroredPreview(previewRef.current, videoRef.current, width, height)
+    }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [mode, saving])
+
   const handleCaptured = useCallback(async (c: FaceCapture) => {
     setSaving(true)
     setThumb(c.url)
@@ -175,7 +190,13 @@ export function FaceCaptureView(props: {
             exit={{ opacity: 0, scale: 0.94 }}
             transition={softSpring}
           >
-            {mode === 'camera' && <video ref={videoRef} className="camera-video" playsInline muted autoPlay />}
+            {mode === 'camera' && (
+              <>
+                {/* O <video> é só a fonte; o preview visível é o canvas (mesma conta das caixas). */}
+                <video ref={videoRef} className="camera-source" playsInline muted autoPlay aria-hidden />
+                <canvas ref={previewRef} className="camera-preview" aria-label="Pré-visualização da câmera" />
+              </>
+            )}
             {mode === 'simulated' && <SimulatedBackdrop face={update.faceInView} />}
             {mode === 'starting' && (
               <motion.div className="camera-starting" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.4, repeat: Infinity }}>
@@ -192,6 +213,7 @@ export function FaceCaptureView(props: {
               captured={saving}
               debug={debug}
             />
+            {debug && mode === 'camera' && <DebugInset video={videoRef.current} raw={update.raw} view={size} />}
             <AnimatePresence>
               {thumb && (
                 <motion.img

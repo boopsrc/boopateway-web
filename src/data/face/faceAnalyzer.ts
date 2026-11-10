@@ -1,5 +1,28 @@
 import type { FaceDetector } from '@mediapipe/tasks-vision'
-import { evaluate, faceShapedBox, largestIndex, toView, type Box, type FaceState } from './faceGuide'
+import { coverSource, evaluate, faceShapedBox, largestIndex, mirrorX, toView, type Box, type FaceState } from './faceGuide'
+
+/**
+ * Desenha o quadro da câmera no canvas do preview: recorte "cover" + espelho, com exatamente a
+ * mesma conta usada para posicionar as caixas (coverSource/toView + mirrorX). Assim o preview
+ * não depende de CSS (object-fit/transform) e a caixa sempre cai em cima do rosto.
+ */
+export function drawMirroredPreview(canvas: HTMLCanvasElement, video: HTMLVideoElement, width: number, height: number) {
+  const vw = video.videoWidth
+  const vh = video.videoHeight
+  if (!vw || !vh || !width || !height || video.readyState < 2) return
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const cw = Math.round(width * dpr)
+  const ch = Math.round(height * dpr)
+  if (canvas.width !== cw || canvas.height !== ch) {
+    canvas.width = cw
+    canvas.height = ch
+  }
+  const g = canvas.getContext('2d')
+  if (!g) return
+  const { sx, sy, sw, sh } = coverSource(vw, vh, width, height)
+  g.setTransform(-dpr, 0, 0, dpr, cw, 0) // espelho horizontal + escala do dpr
+  g.drawImage(video, sx, sy, sw, sh, 0, 0, width, height)
+}
 import type { FaceCapture } from '../../domain/types'
 
 export const HOLD_MILLIS = 2_000
@@ -11,6 +34,16 @@ export interface FaceUpdate {
   state: FaceState
   holdProgress: number
   faceInView: Box | null
+  /** Dados brutos do detector (para o diagnóstico ?debug). */
+  raw?: RawDetections
+}
+
+export interface RawDetections {
+  videoWidth: number
+  videoHeight: number
+  /** Caixas em pixels do quadro bruto (sem espelhar), keypoints normalizados 0..1. */
+  detections: { box: Box; score: number; keypoints: { x: number; y: number }[] }[]
+  target: number | null
 }
 
 /**
@@ -45,18 +78,23 @@ export function startFaceAnalyzer(opts: {
 
     const result = detector.detectForVideo(video, ts)
     const boxes: Box[] = []
+    const raw: RawDetections = { videoWidth: vw, videoHeight: vh, detections: [], target: null }
     for (const d of result.detections) {
       const b = d.boundingBox
-      if (b) boxes.push({ left: b.originX, top: b.originY, right: b.originX + b.width, bottom: b.originY + b.height })
+      if (!b) continue
+      const box = { left: b.originX, top: b.originY, right: b.originX + b.width, bottom: b.originY + b.height }
+      boxes.push(box)
+      raw.detections.push({ box, score: d.categories[0]?.score ?? 0, keypoints: d.keypoints.map((k) => ({ x: k.x, y: k.y })) })
     }
     const target = largestIndex(boxes)
+    raw.target = target
     let state: FaceState = 'NONE'
     let faceInView: Box | null = null
     if (target !== null) {
       // Caixa quadrada do BlazeFace -> formato de rosto, para valer a mesma regra do Android.
       const v = toView(faceShapedBox(boxes[target]), vw, vh, size.width, size.height)
-      // Preview espelhado: inverte o eixo X para que as dicas apontem para o lado certo.
-      faceInView = { left: size.width - v.right, right: size.width - v.left, top: v.top, bottom: v.bottom }
+      // Preview espelhado (desenhado por drawMirroredPreview com a mesma conta).
+      faceInView = mirrorX(v, size.width)
       state = evaluate(faceInView, size.width, size.height)
     }
     const now = performance.now()
@@ -65,7 +103,7 @@ export function startFaceAnalyzer(opts: {
       okSince ??= now
       progress = Math.min(1, (now - okSince) / HOLD_MILLIS)
     } else okSince = null
-    onUpdate({ state, holdProgress: progress, faceInView })
+    onUpdate({ state, holdProgress: progress, faceInView, raw })
 
     if (target !== null && progress >= 1 && !captured) {
       captured = true

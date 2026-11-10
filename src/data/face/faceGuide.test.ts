@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { evaluate, faceShapedBox, largestIndex, toView, type Box } from './faceGuide'
+import { coverSource, evaluate, faceShapedBox, largestIndex, mirrorX, toView, type Box } from './faceGuide'
 
 // View 1000x1600 -> elipse 700x933 centrada em (500, 800)
 const vw = 1000
@@ -30,6 +30,21 @@ describe('faceGuide (FaceGuideTest)', () => {
     expect(shaped.right - shaped.left).toBeCloseTo(600, 5)
     expect(shaped.bottom - shaped.top).toBeCloseTo(750, 5)
     expect(evaluate(shaped, vw, vh)).toBe('OK')
+  })
+  it('caixa e preview desenhado usam a mesma conta (cover + espelho)', () => {
+    // Quadro 1280x720 num preview retrato 432x725 (caso do bug relatado).
+    const [iw, ih, w, h] = [1280, 720, 432, 725]
+    const { sx, sy, scale } = coverSource(iw, ih, w, h)
+    // Onde o preview desenha um pixel (x,y) do quadro: espelhado, após o recorte.
+    const drawn = (x: number, y: number) => [w - (x - sx) * scale, (y - sy) * scale]
+    const face = { left: 600, top: 250, right: 760, bottom: 450 }
+    const box = mirrorX(toView(face, iw, ih, w, h), w)
+    const [x1, y1] = drawn(face.right, face.top) // borda direita do quadro vira esquerda na tela
+    const [x2, y2] = drawn(face.left, face.bottom)
+    expect(box.left).toBeCloseTo(x1, 6)
+    expect(box.right).toBeCloseTo(x2, 6)
+    expect(box.top).toBeCloseTo(y1, 6)
+    expect(box.bottom).toBeCloseTo(y2, 6)
   })
   it('converte imagem para view considerando o corte do cover', () => {
     // Imagem 480x640 numa view 1000x1600: escala = 2.5, sobra 200px na largura (100 de cada lado)

@@ -188,7 +188,7 @@ export function FaceFrame(props: {
         )}
       </AnimatePresence>
 
-      {props.debug && face && <DebugOverlay face={face} e={e} state={state} />}
+      {props.debug && face && <DebugOverlay face={face} e={e} state={state} textY={h - 100} />}
 
       {/* Flash da captura. */}
       <AnimatePresence>
@@ -209,7 +209,7 @@ export function FaceFrame(props: {
 }
 
 /** Diagnóstico: caixa avaliada, pontos de borda (verde = dentro da elipse) e medidas. */
-function DebugOverlay({ face, e, state }: { face: Box; e: Box; state: FaceState }) {
+function DebugOverlay({ face, e, state, textY }: { face: Box; e: Box; state: FaceState; textY: number }) {
   const ex = centerX(e)
   const ey = centerY(e)
   const erx = boxWidth(e) / 2
@@ -229,10 +229,10 @@ function DebugOverlay({ face, e, state }: { face: Box; e: Box; state: FaceState 
       {pts.map((p, i) => (
         <circle key={i} cx={p[0]} cy={p[1]} r={5} fill={dist(p) <= 1.05 ? OK : WRONG} stroke="#000" />
       ))}
-      <text x={10} y={22} fill="#fff" fontSize={13} fontFamily="monospace" style={{ paintOrder: 'stroke' }} stroke="#000" strokeWidth={3}>
+      <text x={10} y={textY} fill="#fff" fontSize={13} fontFamily="monospace" style={{ paintOrder: 'stroke' }} stroke="#000" strokeWidth={3}>
         {`${state} fill=${fill.toFixed(2)} (0.45–1.00)`}
       </text>
-      <text x={10} y={40} fill="#fff" fontSize={13} fontFamily="monospace" style={{ paintOrder: 'stroke' }} stroke="#000" strokeWidth={3}>
+      <text x={10} y={textY + 18} fill="#fff" fontSize={13} fontFamily="monospace" style={{ paintOrder: 'stroke' }} stroke="#000" strokeWidth={3}>
         {`centro=(${centerX(face).toFixed(0)},${centerY(face).toFixed(0)}) elipse=(${ex.toFixed(0)},${ey.toFixed(0)})`}
       </text>
     </g>
