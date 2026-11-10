@@ -1,5 +1,5 @@
 import type { FaceDetector } from '@mediapipe/tasks-vision'
-import { evaluate, largestIndex, toView, type Box, type FaceState } from './faceGuide'
+import { evaluate, faceShapedBox, largestIndex, toView, type Box, type FaceState } from './faceGuide'
 import type { FaceCapture } from '../../domain/types'
 
 export const HOLD_MILLIS = 2_000
@@ -53,7 +53,8 @@ export function startFaceAnalyzer(opts: {
     let state: FaceState = 'NONE'
     let faceInView: Box | null = null
     if (target !== null) {
-      const v = toView(boxes[target], vw, vh, size.width, size.height)
+      // Caixa quadrada do BlazeFace -> formato de rosto, para valer a mesma regra do Android.
+      const v = toView(faceShapedBox(boxes[target]), vw, vh, size.width, size.height)
       // Preview espelhado: inverte o eixo X para que as dicas apontem para o lado certo.
       faceInView = { left: size.width - v.right, right: size.width - v.left, top: v.top, bottom: v.bottom }
       state = evaluate(faceInView, size.width, size.height)

@@ -22,6 +22,8 @@ export function FaceFrame(props: {
   holdProgress: number
   face: Box | null
   captured: boolean
+  /** Mostra a caixa avaliada, os 5 pontos testados e as medidas (abrir a tela com ?debug). */
+  debug?: boolean
 }) {
   const { width: w, height: h, state, holdProgress, face, captured } = props
   const uid = useId().replace(/:/g, '')
@@ -186,6 +188,8 @@ export function FaceFrame(props: {
         )}
       </AnimatePresence>
 
+      {props.debug && face && <DebugOverlay face={face} e={e} state={state} />}
+
       {/* Flash da captura. */}
       <AnimatePresence>
         {captured && (
@@ -201,6 +205,37 @@ export function FaceFrame(props: {
         )}
       </AnimatePresence>
     </svg>
+  )
+}
+
+/** Diagnóstico: caixa avaliada, pontos de borda (verde = dentro da elipse) e medidas. */
+function DebugOverlay({ face, e, state }: { face: Box; e: Box; state: FaceState }) {
+  const ex = centerX(e)
+  const ey = centerY(e)
+  const erx = boxWidth(e) / 2
+  const ery = boxHeight(e) / 2
+  const pts: [number, number][] = [
+    [centerX(face), centerY(face)],
+    [face.left, centerY(face)],
+    [face.right, centerY(face)],
+    [centerX(face), face.top],
+    [centerX(face), face.bottom],
+  ]
+  const dist = ([x, y]: [number, number]) => ((x - ex) / erx) ** 2 + ((y - ey) / ery) ** 2
+  const fill = boxWidth(face) / boxWidth(e)
+  return (
+    <g>
+      <rect x={face.left} y={face.top} width={boxWidth(face)} height={boxHeight(face)} fill="none" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 4" />
+      {pts.map((p, i) => (
+        <circle key={i} cx={p[0]} cy={p[1]} r={5} fill={dist(p) <= 1.05 ? OK : WRONG} stroke="#000" />
+      ))}
+      <text x={10} y={22} fill="#fff" fontSize={13} fontFamily="monospace" style={{ paintOrder: 'stroke' }} stroke="#000" strokeWidth={3}>
+        {`${state} fill=${fill.toFixed(2)} (0.45–1.00)`}
+      </text>
+      <text x={10} y={40} fill="#fff" fontSize={13} fontFamily="monospace" style={{ paintOrder: 'stroke' }} stroke="#000" strokeWidth={3}>
+        {`centro=(${centerX(face).toFixed(0)},${centerY(face).toFixed(0)}) elipse=(${ex.toFixed(0)},${ey.toFixed(0)})`}
+      </text>
+    </g>
   )
 }
 

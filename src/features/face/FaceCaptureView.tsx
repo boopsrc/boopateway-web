@@ -46,6 +46,7 @@ export function FaceCaptureView(props: {
   onCaptured: (c: FaceCapture) => Promise<void> | void
 }) {
   const demo = useAppStore((s) => s.demo)
+  const debug = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug')
   const [mode, setMode] = useState<Mode>('starting')
   const [update, setUpdate] = useState<FaceUpdate>({ state: 'NONE', holdProgress: 0, faceInView: null })
   const [saving, setSaving] = useState(false)
@@ -183,6 +184,7 @@ export function FaceCaptureView(props: {
               holdProgress={saving ? 1 : update.holdProgress}
               face={update.faceInView}
               captured={saving}
+              debug={debug}
             />
             <AnimatePresence>
               {thumb && (

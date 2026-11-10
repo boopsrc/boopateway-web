@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { evaluate, largestIndex, toView, type Box } from './faceGuide'
+import { evaluate, faceShapedBox, largestIndex, toView, type Box } from './faceGuide'
 
 // View 1000x1600 -> elipse 700x933 centrada em (500, 800)
 const vw = 1000
@@ -22,6 +22,15 @@ describe('faceGuide (FaceGuideTest)', () => {
   it('sem rostos não há maior', () => expect(largestIndex([])).toBeNull())
   it('escolhe o maior rosto mesmo que não seja o primeiro', () =>
     expect(largestIndex([faceAt(200, 300, 150), faceAt(500, 800, 450), faceAt(800, 300, 200)])).toBe(1))
+  it('caixa quadrada do BlazeFace com o rosto enquadrado fica OK após virar formato de rosto', () => {
+    // Rosto ocupando ~80% da altura da elipse (933): caixa quadrada de lado 750.
+    const square = faceAt(500, 800, 750, 750)
+    expect(evaluate(square, vw, vh)).toBe('TOO_CLOSE') // o bug: quadrado comparado à largura
+    const shaped = faceShapedBox(square)
+    expect(shaped.right - shaped.left).toBeCloseTo(600, 5)
+    expect(shaped.bottom - shaped.top).toBeCloseTo(750, 5)
+    expect(evaluate(shaped, vw, vh)).toBe('OK')
+  })
   it('converte imagem para view considerando o corte do cover', () => {
     // Imagem 480x640 numa view 1000x1600: escala = 2.5, sobra 200px na largura (100 de cada lado)
     const v = toView({ left: 240, top: 320, right: 240, bottom: 320 }, 480, 640, vw, vh)

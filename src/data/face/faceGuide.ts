@@ -41,6 +41,22 @@ export function ellipse(viewWidth: number, viewHeight: number): Box {
   return { left: cx - w / 2, top: cy - h / 2, right: cx + w / 2, bottom: cy + h / 2 }
 }
 
+/** Largura / altura típica de um rosto (testa ao queixo), como a caixa do ML Kit no Android. */
+export const FACE_ASPECT = 0.8
+
+/**
+ * O BlazeFace (MediaPipe) devolve caixas QUADRADAS, com lado ≈ altura do rosto. As regras de
+ * tamanho vieram do Android (ML Kit), cuja caixa acompanha o formato do rosto (mais estreita).
+ * Comparar a caixa quadrada com a largura da elipse superestima o rosto em ~25% e dá
+ * "afaste-se" com o rosto bem enquadrado. Aqui a caixa vira uma caixa com formato de rosto,
+ * mesma altura e mesmo centro.
+ */
+export function faceShapedBox(square: Box): Box {
+  const w = boxHeight(square) * FACE_ASPECT
+  const cx = centerX(square)
+  return { left: cx - w / 2, right: cx + w / 2, top: square.top, bottom: square.bottom }
+}
+
 /** Índice do maior rosto (por área), ou null se a lista estiver vazia. */
 export function largestIndex(faces: Box[]): number | null {
   if (faces.length === 0) return null
@@ -75,7 +91,8 @@ export function evaluate(face: Box, viewWidth: number, viewHeight: number): Face
   const e = ellipse(viewWidth, viewHeight)
   const fill = boxWidth(face) / boxWidth(e)
   if (fill < MIN_FACE_FILL) return 'TOO_FAR'
-  if (fill > MAX_FACE_FILL) return 'TOO_CLOSE'
+  // Mais alto que a elipse também é perto demais (senão a dica seria "centralize").
+  if (fill > MAX_FACE_FILL || boxHeight(face) > boxHeight(e)) return 'TOO_CLOSE'
   const points: [number, number][] = [
     [centerX(face), centerY(face)],
     [face.left, centerY(face)],
