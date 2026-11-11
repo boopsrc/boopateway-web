@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        VITE_API_URL: ${VITE_API_URL:-https://apipay.depois.click}
+        VITE_API_URL: ${VITE_API_URL:-http://192.168.0.7:31800}
         VITE_DEMO: ${VITE_DEMO:-false}
     container_name: boopateway-web
     ports:

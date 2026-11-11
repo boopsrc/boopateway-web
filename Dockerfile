@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-ARG VITE_API_URL=https://apipay.depois.click
+ARG VITE_API_URL=http://192.168.0.7:31800
 ARG VITE_DEMO=false
 ENV VITE_API_URL=$VITE_API_URL VITE_DEMO=$VITE_DEMO
 RUN npm run build

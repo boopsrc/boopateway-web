@@ -22,7 +22,7 @@ O build é servido pelo nginx padrão da imagem, sem configuração própria. Va
 
 ## Backend
 
-Copie `.env.example` para `.env`. O app chama o gateway direto em `VITE_API_URL` (padrão `https://apipay.depois.click`).
+Copie `.env.example` para `.env`. O app chama o gateway direto em `VITE_API_URL` (padrão `http://192.168.0.7:31800`).
 
 **Modo demo:** ligue na Home (ou `VITE_DEMO=true`). A API roda simulada no navegador: o PIN é `1234`, são 3 tentativas e e-mail duplicado é recusado. Sem câmera, use **Simular rosto** para ver todos os estados da guia facial.
 
