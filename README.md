@@ -24,7 +24,7 @@ nginx serve o build e repassa `/api/*` para `API_TARGET` (padrão `http://host.d
 
 ## Backend
 
-Copie `.env.example` para `.env`. O Vite repassa `/api/*` para `VITE_API_TARGET` (padrão `http://192.168.0.7:31800`), evitando CORS.
+Copie `.env.example` para `.env`. O Vite repassa `/api/*` para `VITE_API_TARGET` (padrão `https://apipay.depois.click`), evitando CORS.
 
 **Modo demo:** ligue na Home (ou `VITE_DEMO=true`). A API roda simulada no navegador: o PIN é `1234`, são 3 tentativas e e-mail duplicado é recusado. Sem câmera, use **Simular rosto** para ver todos os estados da guia facial.
 

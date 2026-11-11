@@ -4,7 +4,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const target = env.VITE_API_TARGET || 'http://192.168.0.7:31800'
+  const target = env.VITE_API_TARGET || 'https://apipay.depois.click'
   // A câmera (getUserMedia) só existe em contexto seguro: no celular, via IP da rede, precisa de HTTPS.
   const https = env.VITE_HTTPS !== 'false'
   return {
