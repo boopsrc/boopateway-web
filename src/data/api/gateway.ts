@@ -73,7 +73,7 @@ function toRegistrationError(e: unknown): Error {
   return new RegistrationError(message, retryable)
 }
 
-export function createRemoteGateway(baseUrl = import.meta.env.VITE_API_URL ?? 'http://192.168.0.7:31800', fetchFn?: FetchFn): FacePayGateway {
+export function createRemoteGateway(baseUrl = import.meta.env.VITE_API_URL ?? 'https://apipay.depois.click', fetchFn?: FetchFn): FacePayGateway {
   const request = createHttp(baseUrl, fetchFn)
 
   /** O POST /payments só traz o nome; o e-mail vem de campos opcionais ou de GET /persons/{id}. */
