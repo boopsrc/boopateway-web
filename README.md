@@ -6,7 +6,7 @@ Versão web (React) do POS **FacePay** ([boopateway-droid](https://github.com/bo
 
 ```bash
 npm install
-npm run dev        # https://localhost:5173 (HTTPS para a câmera no celular)
+npm run dev        # http://localhost:5173
 ```
 
 - `npm test` — testes unitários (porta dos testes do Android)
@@ -18,13 +18,11 @@ npm run dev        # https://localhost:5173 (HTTPS para a câmera no celular)
 docker compose up -d --build   # http://localhost:31802
 ```
 
-nginx serve o build e repassa `/api/*` para `API_TARGET` (padrão `http://host.docker.internal:31800`, o gateway no host). Variáveis opcionais: `WEB_PORT`, `WEB_HTTPS_PORT`, `API_TARGET` e `VITE_DEMO=true` (este no build).
-
-**Câmera no celular:** o navegador só pede a permissão em `localhost` ou HTTPS. O container também serve HTTPS em `https://<ip>:31803` (certificado autoassinado gerado na subida; aceite o aviso no celular) e redireciona para lá quem abre `http://<ip>:31802`. Para usar um certificado próprio, monte `cert.pem` e `key.pem` em `/etc/nginx/certs`. Em dev, o Vite já sobe em HTTPS (`VITE_HTTPS=false` desliga).
+O build é servido pelo nginx padrão da imagem, sem configuração própria. Variáveis opcionais: `WEB_PORT`, e no build `VITE_API_URL` e `VITE_DEMO=true`.
 
 ## Backend
 
-Copie `.env.example` para `.env`. O Vite repassa `/api/*` para `VITE_API_TARGET` (padrão `http://192.168.0.7:31800`), evitando CORS.
+Copie `.env.example` para `.env`. O app chama o gateway direto em `VITE_API_URL` (padrão `http://192.168.0.7:31800`).
 
 **Modo demo:** ligue na Home (ou `VITE_DEMO=true`). A API roda simulada no navegador: o PIN é `1234`, são 3 tentativas e e-mail duplicado é recusado. Sem câmera, use **Simular rosto** para ver todos os estados da guia facial.
 

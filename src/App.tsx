@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useRef } from 'react'
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { routeDepth, screenVariants } from './animation/motion'
 import { FaceTestScreen } from './features/FaceTestScreen'
 import { HomeScreen } from './features/Home'
@@ -70,13 +70,13 @@ function AnimatedRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="app">
         <Aurora />
         <div className="device">
           <AnimatedRoutes />
         </div>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
